@@ -199,11 +199,15 @@ textarea {
   position: relative;
   border-radius: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(145deg, #101828, #0b1223);
+  background: linear-gradient(145deg, #2a3f6f, #22345c);
   color: #fff;
   min-height: 360px;
   overflow: hidden;
   cursor: pointer;
+}
+
+.card.show-back {
+  background: linear-gradient(145deg, #6f85d8, #6278c4);
 }
 
 .card-face {
