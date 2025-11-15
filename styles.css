@@ -411,6 +411,7 @@ button.danger.ghost:hover {
 }
 
 .danger, .secondary, .primary {
+  padding: 0.6rem .5rem;
   width: 100%;
 }
 
