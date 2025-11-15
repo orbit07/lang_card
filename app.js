@@ -208,12 +208,75 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
-const speakText = (text, lang = 'ko-KR') => {
+const fetchAvailableVoices = () => {
+  if (!window.speechSynthesis) return [];
+  const list = window.speechSynthesis.getVoices();
+  if (list.length) {
+    speechState.voices = list;
+  }
+  return list;
+};
+
+const ensureVoicesLoaded = () => {
+  if (!window.speechSynthesis) return Promise.resolve([]);
+  const existing = fetchAvailableVoices();
+  if (existing.length) {
+    return Promise.resolve(existing);
+  }
+  if (!speechState.loadingPromise) {
+    speechState.loadingPromise = new Promise((resolve) => {
+      let resolved = false;
+      const handle = () => {
+        const voices = fetchAvailableVoices();
+        if (!voices.length) return;
+        window.speechSynthesis.removeEventListener('voiceschanged', handle);
+        speechState.loadingPromise = null;
+        resolved = true;
+        resolve(voices);
+      };
+      window.speechSynthesis.addEventListener('voiceschanged', handle);
+      // iOS Safari sometimes requires a delayed retry after the first user gesture
+      setTimeout(() => {
+        if (resolved) return;
+        const retryVoices = fetchAvailableVoices();
+        if (retryVoices.length) {
+          window.speechSynthesis.removeEventListener('voiceschanged', handle);
+        }
+        speechState.loadingPromise = null;
+        resolve(retryVoices);
+      }, 1200);
+    });
+  }
+  return speechState.loadingPromise;
+};
+
+const getVoiceForLang = (lang) => {
+  if (!speechState.voices.length) return null;
+  const normalized = lang.toLowerCase();
+  const base = normalized.split('-')[0];
+  return (
+    speechState.voices.find((voice) => voice.lang?.toLowerCase() === normalized) ||
+    speechState.voices.find((voice) => voice.lang?.toLowerCase().startsWith(base)) ||
+    null
+  );
+};
+
+const speakText = async (text, lang = 'ko-KR') => {
   if (!window.speechSynthesis || !text) return;
-  speechSynthesis.cancel();
+  try {
+    await ensureVoicesLoaded();
+  } catch (error) {
+    // noop: fallback to lang-only playback
+  }
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  speechSynthesis.speak(utterance);
+  const voice = getVoiceForLang(lang);
+  if (voice) {
+    utterance.voice = voice;
+  } else {
+    utterance.lang = lang;
+  }
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
 };
 
 const toggleSide = () => {
@@ -445,6 +508,23 @@ const handleTouchEnd = (event) => {
   } else {
     goTo(1);
   }
+};
+
+const primeSpeechOnFirstInteraction = () => {
+  if (!window.speechSynthesis) return;
+  const warmup = () => {
+    fetchAvailableVoices();
+    ensureVoicesLoaded();
+  };
+  const handler = () => {
+    warmup();
+    document.removeEventListener('touchstart', handler, true);
+    document.removeEventListener('mousedown', handler, true);
+    document.removeEventListener('keydown', handler, true);
+  };
+  document.addEventListener('touchstart', handler, true);
+  document.addEventListener('mousedown', handler, true);
+  document.addEventListener('keydown', handler, true);
 };
 
 const init = () => {
