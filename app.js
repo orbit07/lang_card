@@ -281,8 +281,8 @@ const speakText = (text, lang = 'ko-KR') => {
   return waitForVoices().then(() => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
-    utterance.pitch = 2;
-    utterance.rate = 2;
+    utterance.pitch = 1.2;
+    utterance.rate = 1.2;
     const voice = getVoiceForLang(lang);
     if (voice) {
       utterance.voice = voice;
