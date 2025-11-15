@@ -50,7 +50,9 @@ let selectedFilters = new Set();
 const speechState = {
   voices: [],
   listening: false,
+  voiceReadyPromise: null,
 };
+
 const SAMPLE_DATA = [
   {
     id: crypto.randomUUID?.() ?? `card-${Date.now()}`,
@@ -530,7 +532,7 @@ const primeSpeechOnFirstInteraction = () => {
   if (!window.speechSynthesis) return;
   const warmup = () => {
     subscribeVoiceChanges();
-    refreshVoices();
+    waitForVoices();
   };
   const handler = () => {
     warmup();
