@@ -365,8 +365,8 @@ button.primary.checked {
 }
 
 button.secondary {
-  background: rgba(64, 87, 109, 0.12);
-  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
 }
 
 button.secondary:hover {
@@ -404,7 +404,7 @@ button.danger.ghost:hover {
   gap: 0.5rem;
   margin-top: 1rem;
   justify-content: space-between;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: 1fr 1fr auto;
 }
 
 .danger, .secondary, .primary {
