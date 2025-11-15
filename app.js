@@ -212,7 +212,6 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
-
 const refreshVoices = () => {
   if (!window.speechSynthesis) return [];
   const list = window.speechSynthesis.getVoices();
@@ -229,6 +228,40 @@ const subscribeVoiceChanges = () => {
   window.speechSynthesis.addEventListener('voiceschanged', refreshVoices);
 };
 
+const waitForVoices = () => {
+  if (!window.speechSynthesis) return Promise.resolve([]);
+  if (speechState.voices.length) return Promise.resolve(speechState.voices);
+  if (!speechState.voiceReadyPromise) {
+    speechState.voiceReadyPromise = new Promise((resolve) => {
+      const attempt = () => {
+        const list = refreshVoices();
+        if (list.length) {
+          speechState.voiceReadyPromise = null;
+          resolve(list);
+          return true;
+        }
+        return false;
+      };
+
+      if (attempt()) return;
+
+      const timer = setInterval(() => {
+        if (attempt()) {
+          clearInterval(timer);
+        }
+      }, 150);
+
+      setTimeout(() => {
+        clearInterval(timer);
+        speechState.voiceReadyPromise = null;
+        resolve(speechState.voices);
+      }, 1500);
+    });
+  }
+
+  return speechState.voiceReadyPromise;
+};
+
 const getVoiceForLang = (lang) => {
   if (!speechState.voices.length) return null;
   const normalized = lang.toLowerCase();
@@ -239,7 +272,6 @@ const getVoiceForLang = (lang) => {
     null
   );
 };
-
 
 const speakText = (text, lang = 'ko-KR') => {
   if (!window.speechSynthesis || !text) return;
@@ -252,9 +284,15 @@ const speakText = (text, lang = 'ko-KR') => {
     utterance.lang = voice.lang;
   } else {
     utterance.lang = lang;
-  }
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+    utterance.pitch = 1.8;
+    utterance.rate = 1.2;
+    const voice = getVoiceForLang(lang);
+    if (voice) {
+      utterance.voice = voice;
+    }
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  });
 };
 
 const toggleSide = () => {
@@ -433,7 +471,7 @@ const attachListeners = () => {
   });
   elements.backSpeak.addEventListener('click', (event) => {
     event.stopPropagation();
-    speakText(currentCard()?.backText, 'ja-JP');
+    speakText(currentCard()?.backText, 'ko-KR');
   });
   elements.checkButton.addEventListener('click', (event) => {
     event.stopPropagation();
