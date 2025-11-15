@@ -438,6 +438,11 @@ button.danger.ghost:hover {
   z-index: 20;
 }
 
+.tag-filter-menu[hidden],
+.tag-filter-menu.hidden {
+  display: none;
+}
+
 .tag-filter-menu label {
   display: flex;
   justify-content: space-between;
