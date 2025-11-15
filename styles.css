@@ -226,6 +226,12 @@ textarea {
   display: none;
 }
 
+.hint-text {
+  position: relative;
+  display: block;
+  min-height: 2.5rem;
+}
+
 .hint-mask {
   position: absolute;
   inset: 0;
@@ -241,12 +247,6 @@ textarea {
 
 .hint.revealed .hint-mask {
   opacity: 0;
-}
-
-.hint-text {
-  position: relative;
-  display: block;
-  min-height: 2.5rem;
 }
 
 .card-empty {
