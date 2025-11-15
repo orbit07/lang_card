@@ -275,26 +275,32 @@ const getVoiceForLang = (lang) => {
   );
 };
 
-const speakText = (text, lang = 'ko-KR') => {
+const speakText = async (text, lang = 'ko-KR') => {
   if (!window.speechSynthesis || !text) return;
   subscribeVoiceChanges();
-  refreshVoices();
+
+  try {
+    await waitForVoices();
+  } catch (error) {
+    // iOS Safari などで voice リストの取得に失敗するケースでも、
+    // 既定音声での読み上げを試みられるように握り潰す
+    console.warn('音声リストの取得に失敗しました', error);
+  }
+
   const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.pitch = 1.8;
+  utterance.rate = 1.2;
   const voice = getVoiceForLang(lang);
   if (voice) {
     utterance.voice = voice;
-    utterance.lang = voice.lang;
-  } else {
-    utterance.lang = lang;
-    utterance.pitch = 2;
-    utterance.rate = 1.2;
-    const voice = getVoiceForLang(lang);
-    if (voice) {
-      utterance.voice = voice;
-    }
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  };
+  }
+
+  window.speechSynthesis.cancel();
+  if (typeof window.speechSynthesis.resume === 'function') {
+    window.speechSynthesis.resume();
+  }
+  window.speechSynthesis.speak(utterance);
 };
 
 const toggleSide = () => {
