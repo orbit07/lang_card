@@ -364,7 +364,7 @@ button.primary:hover {
   background: var(--accent-dark);
 }
 
-.keep {
+button.keep {
   background: var(--accent);
   color: #fff;
 }
