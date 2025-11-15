@@ -581,7 +581,6 @@ const attachListeners = () => {
       closeTagFilterMenu();
     }
   });
-
   elements.frontSpeak.addEventListener('click', (event) => {
     event.stopPropagation();
     speakText(currentCard()?.frontText, 'ko-KR');
