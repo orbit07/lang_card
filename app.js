@@ -17,6 +17,7 @@ const elements = {
   backTags: document.getElementById('backTags'),
   cardTags: document.getElementById('cardTags'),
   checkButton: document.getElementById('checkButton'),
+  editButton: document.getElementById('editButton'),
   deleteButton: document.getElementById('deleteButton'),
   frontSpeak: document.getElementById('frontSpeak'),
   backSpeak: document.getElementById('backSpeak'),
@@ -195,11 +196,13 @@ const renderCard = () => {
     elements.frontHint.classList.remove('revealed');
     elements.hintText.textContent = '';
     elements.checkButton.disabled = true;
+    elements.editButton.disabled = true;
     elements.deleteButton.disabled = true;
     return;
   }
 
   elements.checkButton.disabled = false;
+  elements.editButton.disabled = false;
   elements.deleteButton.disabled = false;
   elements.frontText.textContent = card.frontText;
   elements.backText.textContent = card.backText;
@@ -310,7 +313,7 @@ const speakText = async (text, lang = 'ko-KR') => {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = lang;
   utterance.pitch = 1;
-  utterance.rate = 1.2;
+  utterance.rate = 1;
   const voice = getVoiceForLang(lang);
   if (voice) {
     utterance.voice = voice;
@@ -412,6 +415,9 @@ const startEdit = (cardId) => {
     input.checked = card.tags.includes(input.value);
   });
   elements.frontInput.focus();
+  if (typeof elements.cardForm.scrollIntoView === 'function') {
+    elements.cardForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 };
 
 const deleteCard = (cardId) => {
@@ -507,13 +513,19 @@ const attachListeners = () => {
     event.stopPropagation();
     speakText(currentCard()?.backText, 'ko-KR');
   });
-  elements.checkButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    toggleCheck();
-  });
   elements.deleteButton.addEventListener('click', (event) => {
     event.stopPropagation();
     deleteCurrentCard();
+  });
+  elements.editButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const card = currentCard();
+    if (!card) return;
+    startEdit(card.id);
+  });
+  elements.checkButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleCheck();
   });
   elements.prevCard.addEventListener('click', (event) => {
     event.stopPropagation();

@@ -292,6 +292,15 @@ button.primary.checked {
   background: #0f9d58;
 }
 
+button.secondary {
+  background: rgba(64, 87, 109, 0.12);
+  color: var(--text);
+}
+
+button.secondary:hover {
+  background: rgba(64, 87, 109, 0.2);
+}
+
 button.ghost {
   background: transparent;
   border: 1px solid var(--border);
