@@ -414,11 +414,11 @@ button.danger.ghost:hover {
   gap: 0.5rem;
   margin-top: 1rem;
   justify-content: space-between;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: auto auto 1fr;
 }
 
 .danger, .secondary, .primary {
-  padding: 0.6rem .5rem;
+  padding: 0.6rem 1rem;
   width: 100%;
 }
 
