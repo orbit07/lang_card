@@ -7,6 +7,11 @@ const elements = {
   tagFilterContainer: document.getElementById('tagFilterContainer'),
   tagFilterToggle: document.getElementById('tagFilterToggle'),
   tagFilterSummary: document.getElementById('tagFilterSummary'),
+  studyPanel: document.getElementById('studyPanel'),
+  managePanel: document.getElementById('managePanel'),
+  studyTab: document.getElementById('studyTab'),
+  manageTab: document.getElementById('manageTab'),
+  panelTabs: document.querySelectorAll('[data-panel-tab]'),
   card: document.getElementById('card'),
   frontText: document.getElementById('frontText'),
   backText: document.getElementById('backText'),
@@ -51,6 +56,7 @@ let currentIndex = 0;
 let showingBack = false;
 let selectedFilters = new Set();
 let tagFilterMenuOpen = false;
+let activePanel = 'study';
 
 const speechState = {
   voices: [],
@@ -228,6 +234,17 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
+const setActivePanel = (panel) => {
+  const target = panel === 'manage' ? 'manage' : 'study';
+  activePanel = target;
+  const showStudy = target === 'study';
+  elements.studyPanel.hidden = !showStudy;
+  elements.managePanel.hidden = showStudy;
+  elements.studyTab.classList.toggle('active', showStudy);
+  elements.manageTab.classList.toggle('active', !showStudy);
+  elements.studyTab.setAttribute('aria-selected', showStudy ? 'true' : 'false');
+  elements.manageTab.setAttribute('aria-selected', !showStudy ? 'true' : 'false');
+};
 const refreshVoices = () => {
   if (!window.speechSynthesis) return [];
   const list = window.speechSynthesis.getVoices();
@@ -459,6 +476,7 @@ const renderCardList = () => {
 const startEdit = (cardId) => {
   const card = cards.find((c) => c.id === cardId);
   if (!card) return;
+  setActivePanel('manage');
   elements.cardId.value = card.id;
   elements.frontInput.value = card.frontText;
   elements.backInput.value = card.backText;
@@ -567,6 +585,14 @@ const attachListeners = () => {
     event.stopPropagation();
     toggleTagFilterMenu();
   });
+  elements.panelTabs.forEach((button) => {
+    button.addEventListener('click', () => {
+      setActivePanel(button.dataset.panelTab);
+      if (button.dataset.panelTab === 'manage') {
+        elements.frontInput?.focus();
+      }
+    });
+  });
   document.addEventListener('click', (event) => {
     if (
       tagFilterMenuOpen &&
@@ -672,6 +698,7 @@ const primeSpeechOnFirstInteraction = () => {
 const init = () => {
   loadData();
   renderTagFilters();
+  setActivePanel('study');
   attachListeners();
   primeSpeechOnFirstInteraction();
   updateActiveCards();

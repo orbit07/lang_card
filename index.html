@@ -27,7 +27,33 @@
     </header>
 
     <main>
-      <section class="study-panel">
+
+      <div class="panel-tabs" role="tablist">
+        <button
+          type="button"
+          id="studyTab"
+          class="panel-tab active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="studyPanel"
+          data-panel-tab="study"
+        >
+          学習モード
+        </button>
+        <button
+          type="button"
+          id="manageTab"
+          class="panel-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="managePanel"
+          data-panel-tab="manage"
+        >
+          カード管理
+        </button>
+      </div>
+
+      <section class="study-panel" id="studyPanel" role="tabpanel" aria-labelledby="studyTab">
         <div class="card-view">
           <div class="card-meta">
             <span id="cardCounter">0 / 0</span>
@@ -105,7 +131,13 @@
         </div>
       </section>
 
-      <section class="manage-panel">
+      <section
+        class="manage-panel"
+        id="managePanel"
+        role="tabpanel"
+        aria-labelledby="manageTab"
+        hidden
+      >
         <div class="panel-header">
           <h2>カードの登録・編集</h2>
         </div>
