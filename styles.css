@@ -403,9 +403,15 @@ button.danger.ghost:hover {
 }
 
 .card-cta-row {
-  display: flex;
-  gap: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
   margin-top: 1rem;
+  justify-content: space-between;
+  grid-template-columns: auto auto auto;
+}
+
+.danger, .secondary, .primary {
+  width: 100%;
 }
 
 .tag-options {
@@ -555,7 +561,8 @@ button.danger.ghost:hover {
 }
 
 .form-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   justify-content: space-between;
   margin-top: 1rem;
