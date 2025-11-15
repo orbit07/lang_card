@@ -51,6 +51,7 @@ const speechState = {
   voices: [],
   listening: false,
   voiceReadyPromise: null,
+  preferredVoiceName: 'yuna',
 };
 
 const SAMPLE_DATA = [
@@ -268,6 +269,18 @@ const getVoiceForLang = (lang) => {
   if (!speechState.voices.length) return null;
   const normalized = lang.toLowerCase();
   const base = normalized.split('-')[0];
+
+  if (normalized === 'ko-kr' && speechState.preferredVoiceName) {
+    const preferred = speechState.voices.find(
+      (voice) =>
+        voice.lang?.toLowerCase() === normalized &&
+        voice.name?.toLowerCase().includes(speechState.preferredVoiceName)
+    );
+    if (preferred) {
+      return preferred;
+    }
+  }
+
   return (
     speechState.voices.find((voice) => voice.lang?.toLowerCase() === normalized) ||
     speechState.voices.find((voice) => voice.lang?.toLowerCase().startsWith(base)) ||
@@ -289,7 +302,7 @@ const speakText = async (text, lang = 'ko-KR') => {
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = lang;
-  utterance.pitch = 1.8;
+  utterance.pitch = 1;
   utterance.rate = 1.2;
   const voice = getVoiceForLang(lang);
   if (voice) {
