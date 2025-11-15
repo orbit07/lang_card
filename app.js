@@ -281,6 +281,8 @@ const speakText = (text, lang = 'ko-KR') => {
   return waitForVoices().then(() => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
+    utterance.pitch = 2;
+    utterance.rate = 2;
     const voice = getVoiceForLang(lang);
     if (voice) {
       utterance.voice = voice;
@@ -466,7 +468,7 @@ const attachListeners = () => {
   });
   elements.backSpeak.addEventListener('click', (event) => {
     event.stopPropagation();
-    speakText(currentCard()?.backText, 'ja-JP');
+    speakText(currentCard()?.backText, 'ko-KR');
   });
   elements.checkButton.addEventListener('click', (event) => {
     event.stopPropagation();
