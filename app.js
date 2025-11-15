@@ -278,19 +278,23 @@ const getVoiceForLang = (lang) => {
 const speakText = (text, lang = 'ko-KR') => {
   if (!window.speechSynthesis || !text) return;
   subscribeVoiceChanges();
+  refreshVoices();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  utterance.pitch = 1.8;
-  utterance.rate = 1.2;
   const voice = getVoiceForLang(lang);
   if (voice) {
     utterance.voice = voice;
+    utterance.lang = voice.lang;
   } else {
-    // 声がまだ読み込まれていない場合はバックグラウンドでロードを開始
-    waitForVoices();
-  }
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+    utterance.lang = lang;
+    utterance.pitch = 2;
+    utterance.rate = 1.2;
+    const voice = getVoiceForLang(lang);
+    if (voice) {
+      utterance.voice = voice;
+    }
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
 };
 
 const toggleSide = () => {
