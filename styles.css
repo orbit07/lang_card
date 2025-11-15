@@ -199,11 +199,14 @@ textarea {
   position: relative;
   border-radius: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(145deg, #101828, #0b1223);
   color: #fff;
   min-height: 360px;
   overflow: hidden;
   cursor: pointer;
+}
+
+.card.front {
+  background: linear-gradient(145deg, #16213b, #0f1730);
 }
 
 .card-face {
@@ -365,8 +368,9 @@ button.primary.checked {
 }
 
 button.secondary {
-  border-color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   color: #fff;
+  background: transparent;
 }
 
 button.secondary:hover {
