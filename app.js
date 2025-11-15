@@ -47,11 +47,6 @@ let currentIndex = 0;
 let showingBack = false;
 let selectedFilters = new Set();
 
-const speechState = {
-  voices: [],
-  loadingPromise: null,
-};
-
 const SAMPLE_DATA = [
   {
     id: crypto.randomUUID?.() ?? `card-${Date.now()}`,
@@ -536,7 +531,6 @@ const init = () => {
   loadData();
   renderTagFilters();
   attachListeners();
-  primeSpeechOnFirstInteraction();
   updateActiveCards();
 };
 
