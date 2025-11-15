@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>韓国語フラッシュカード</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <div>
+        <p class="eyebrow">📘 Korean Flashcard App</p>
+        <h1>韓国語フラッシュカード</h1>
+        <p class="subtitle">
+          表と裏にフレーズやメモを保存し、タップとスワイプで効率よく復習できます。
+        </p>
+      </div>
+      <div class="header-actions">
+        <button id="resetProgress" class="ghost">チェックを全て外す</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="panel-tabs" role="tablist">
+        <button
+          type="button"
+          id="studyTab"
+          class="panel-tab active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="studyPanel"
+          data-panel-tab="study"
+        >
+          学習モード
+        </button>
+        <button
+          type="button"
+          id="manageTab"
+          class="panel-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="managePanel"
+          data-panel-tab="manage"
+        >
+          カード管理
+        </button>
+      </div>
+
+      <section class="study-panel" id="studyPanel" role="tabpanel" aria-labelledby="studyTab">
+        <div class="card-view">
+          <div class="card-meta">
+            <span id="cardCounter">0 / 0</span>
+            <span id="cardTags"></span>
+          </div>
+          <div id="card" class="card" aria-live="polite">
+            <div class="card-face" id="frontFace">
+              <div class="card-header">
+                <p>表面</p>
+                <button class="ghost small" id="frontSpeak" type="button">🔊 韓国語</button>
+              </div>
+              <p class="card-text" id="frontText">カードがありません</p>
+              <div class="memo" id="frontNote"></div>
+              <div class="hint" id="frontHint">
+                <span class="hint-text"></span>
+                <span class="hint-mask">ヒントをタップ</span>
+              </div>
+            </div>
+            <div class="card-face back" id="backFace">
+              <div class="card-header">
+                <p>裏面</p>
+                <button class="ghost small" id="backSpeak" type="button">🔊 読み上げ</button>
+              </div>
+              <p class="card-text" id="backText"></p>
+              <div class="memo" id="backMemo"></div>
+              <div class="tags" id="backTags"></div>
+              <div class="card-cta-row">
+                <button id="deleteButton" class="danger ghost" type="button">削除</button>
+                <button id="editButton" class="secondary" type="button">編集</button>
+                <button id="checkButton" class="primary" type="button">覚えた！</button>
+              </div>
+            </div>
+            <div class="card-empty" id="emptyMessage">
+              条件に一致するカードがありません。フィルターを確認してください。
+            </div>
+          </div>
+          <div class="card-actions">
+            <button id="prevCard" class="ghost" type="button">← 前へ</button>
+            <button id="toggleSide" class="primary" type="button">表 / 裏</button>
+            <button id="nextCard" class="ghost" type="button">次へ →</button>
+          </div>
+          <p class="hint-note">カード全体をタップしても表裏を切り替えられます。スワイプ操作にも対応しています。</p>
+        </div>
+
+        <div class="controls">
+          <div class="control-group inline-control">
+            <label for="modeSelect">出題モード</label>
+            <select id="modeSelect">
+              <option value="sequential">順番モード</option>
+              <option value="random">ランダムモード</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="checkbox">
+              <input type="checkbox" id="excludeChecked" />
+              <span>チェック済みを除外</span>
+            </label>
+          </div>
+          <div class="control-group tag-filter-group">
+            <label class="control-label" for="tagFilterToggle">タグフィルター</label>
+            <div class="tag-filter-control">
+              <button
+                id="tagFilterToggle"
+                type="button"
+                class="select-trigger"
+                aria-expanded="false"
+                aria-controls="tagFilterContainer"
+              >
+                <span id="tagFilterSummary">すべてのタグ</span>
+                <span class="chevron" aria-hidden="true"></span>
+              </button>
+              <div id="tagFilterContainer" class="tag-filter-menu" hidden></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="manage-panel"
+        id="managePanel"
+        role="tabpanel"
+        aria-labelledby="manageTab"
+        hidden
+      >
+        <div class="panel-header">
+          <h2>カードの登録・編集</h2>
+        </div>
+        <form id="cardForm">
+          <input type="hidden" name="cardId" id="cardId" />
+          <div class="form-grid">
+            <div>
+              <label>表面フレーズ</label>
+              <textarea name="frontText" id="frontInput" required></textarea>
+            </div>
+            <div>
+              <label>裏面フレーズ</label>
+              <textarea name="backText" id="backInput" required></textarea>
+            </div>
+            <div>
+              <label>表メモ</label>
+              <textarea name="frontNote" id="frontNoteInput" placeholder="表面に表示されるメモ"></textarea>
+            </div>
+            <div>
+              <label>ヒントメモ（黒塗り）</label>
+              <textarea name="frontHint" id="frontHintInput" placeholder="タップして表示されるヒント"></textarea>
+            </div>
+            <div>
+              <label>裏メモ</label>
+              <textarea name="backMemo" id="backMemoInput"></textarea>
+            </div>
+          </div>
+          <div class="tag-library">
+            <label for="newTagInput">タグを追加</label>
+            <div class="tag-input-row">
+              <input id="newTagInput" type="text" placeholder="例: あいさつ" />
+              <button id="addTagButton" type="button">追加</button>
+            </div>
+            <p class="small">登録済みタグは選択式で再利用できます。</p>
+          </div>
+          <fieldset class="tag-select">
+            <legend>タグを選択（複数可）</legend>
+            <div id="cardTagOptions" class="tag-options"></div>
+          </fieldset>
+          <div class="form-actions">
+            <button class="ghost" type="button" id="cancelEdit">リセット</button>
+            <button class="primary" type="submit">保存</button>
+          </div>
+        </form>
+
+        <div class="card-list">
+          <div class="list-header">
+            <h3>登録済みカード</h3>
+            <span id="totalCards">0件</span>
+          </div>
+          <div id="cardList"></div>
+        </div>
+      </section>
+    </main>
+
+    <template id="cardRowTemplate">
+      <div class="card-row">
+        <div class="card-row-main">
+          <p class="row-front"></p>
+          <p class="row-back"></p>
+          <div class="row-tags"></div>
+        </div>
+        <div class="row-actions">
+          <button class="ghost small" data-action="edit">編集</button>
+          <button class="danger small" data-action="delete">削除</button>
+        </div>
+      </div>
+    </template>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
