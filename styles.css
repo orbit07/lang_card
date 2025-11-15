@@ -15,6 +15,21 @@
   box-sizing: border-box;
 }
 
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: none transparent;
+  vertical-align: middle;
+  font-size: inherit;
+  color: inherit;
+  box-sizing: content-box;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -31,7 +46,7 @@ body::before {
 }
 
 header {
-  display: flex;
+  display: none;
   justify-content: space-between;
   gap: 1rem;
   padding: 2rem clamp(1rem, 5vw, 3rem);
@@ -50,8 +65,8 @@ h3 {
 main {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 1.5rem;
-  padding: 0 clamp(1rem, 5vw, 3rem) 3rem;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 5vw, 3rem) 3rem;
 }
 
 [hidden] {
@@ -68,7 +83,6 @@ main {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
-  margin-bottom: 0.5rem;
 }
 
 .panel-tab {
@@ -123,8 +137,8 @@ section {
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem 2rem;
-  margin-top: 2rem;
+  gap: 1rem 1rem;
+  margin-bottom: 1rem;
 }
 
 .control-group {
@@ -146,7 +160,7 @@ section {
 
 .inline-control select {
   flex: 1;
-  min-width: 180px;
+  min-width: 120px;
 }
 
 .control-label {
@@ -320,7 +334,7 @@ textarea {
 }
 
 .card-actions {
-  display: flex;
+  display: none;
   gap: 0.5rem;
   justify-content: center;
 }
@@ -508,7 +522,7 @@ button.danger.ghost:hover {
 }
 
 .panel-header {
-  display: flex;
+  display: none;
   justify-content: space-between;
   gap: 2rem;
   align-items: flex-end;
@@ -516,32 +530,40 @@ button.danger.ghost:hover {
 }
 
 .tag-input-row {
-  display: flex;
+  display: grid;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: 0.2rem;
+  grid-template-columns: 1fr auto;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: .5rem;
+}
+
+.form-grid label {
+  padding-bottom: .2rem;
+  display: inline-block;
 }
 
 .tag-select {
   border: 1px dashed var(--border);
   padding: 1rem;
   border-radius: 1rem;
+  margin-top: .5rem;
 }
 
 .form-actions {
   display: flex;
   gap: 0.5rem;
-  justify-content: flex-end;
+  justify-content: space-between;
+  margin-top: 1rem;
 }
 
 .card-list {
   margin-top: 2rem;
+  display: none;
 }
 
 .card-row {
@@ -591,7 +613,7 @@ button.danger.ghost:hover {
 }
 
 .tag-library {
-  margin: 1.5rem 0 0;
+  margin: .5rem 0 0;
 }
 
 .small {
@@ -614,18 +636,9 @@ button.danger.ghost:hover {
   section {
     padding: 1.5rem;
   }
-  
-  .panel-tabs {
-    flex-direction: column;
-  }
 
   .panel-tab {
     width: 100%;
-  }
-  
-  header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .card {

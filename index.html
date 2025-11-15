@@ -54,15 +54,40 @@
       </div>
 
       <section class="study-panel" id="studyPanel" role="tabpanel" aria-labelledby="studyTab">
-        <div class="card-view">
-          <div class="card-meta">
-            <span id="cardCounter">0 / 0</span>
-            <span id="cardTags"></span>
+
+        <div class="controls">
+          <div class="control-group inline-control">
+            <select id="modeSelect">
+              <option value="sequential">順番</option>
+              <option value="random">ランダム</option>
+            </select>
+            <label class="checkbox">
+              <input type="checkbox" id="excludeChecked" />
+              <span>覚えた！除外</span>
+            </label>
           </div>
+          <div class="control-group tag-filter-group">
+            <div class="tag-filter-control">
+              <button
+                id="tagFilterToggle"
+                type="button"
+                class="select-trigger"
+                aria-expanded="false"
+                aria-controls="tagFilterContainer"
+              >
+                <span id="tagFilterSummary">すべてのタグ</span>
+                <span class="chevron" aria-hidden="true"></span>
+              </button>
+              <div id="tagFilterContainer" class="tag-filter-menu" hidden></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-view">
           <div id="card" class="card" aria-live="polite">
             <div class="card-face" id="frontFace">
               <div class="card-header">
-                <p>表面</p>
+                <span id="cardCounter">0 / 0</span>
                 <button class="ghost small" id="frontSpeak" type="button">🔊 韓国語</button>
               </div>
               <p class="card-text" id="frontText">カードがありません</p>
@@ -74,7 +99,6 @@
             </div>
             <div class="card-face back" id="backFace">
               <div class="card-header">
-                <p>裏面</p>
                 <button class="ghost small" id="backSpeak" type="button">🔊 読み上げ</button>
               </div>
               <p class="card-text" id="backText"></p>
@@ -95,40 +119,8 @@
             <button id="toggleSide" class="primary" type="button">表 / 裏</button>
             <button id="nextCard" class="ghost" type="button">次へ →</button>
           </div>
-          <p class="hint-note">カード全体をタップしても表裏を切り替えられます。スワイプ操作にも対応しています。</p>
         </div>
 
-        <div class="controls">
-          <div class="control-group inline-control">
-            <label for="modeSelect">出題モード</label>
-            <select id="modeSelect">
-              <option value="sequential">順番モード</option>
-              <option value="random">ランダムモード</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label class="checkbox">
-              <input type="checkbox" id="excludeChecked" />
-              <span>チェック済みを除外</span>
-            </label>
-          </div>
-          <div class="control-group tag-filter-group">
-            <label class="control-label" for="tagFilterToggle">タグフィルター</label>
-            <div class="tag-filter-control">
-              <button
-                id="tagFilterToggle"
-                type="button"
-                class="select-trigger"
-                aria-expanded="false"
-                aria-controls="tagFilterContainer"
-              >
-                <span id="tagFilterSummary">すべてのタグ</span>
-                <span class="chevron" aria-hidden="true"></span>
-              </button>
-              <div id="tagFilterContainer" class="tag-filter-menu" hidden></div>
-            </div>
-          </div>
-        </div>
       </section>
 
       <section
@@ -171,7 +163,6 @@
               <input id="newTagInput" type="text" placeholder="例: あいさつ" />
               <button id="addTagButton" type="button">追加</button>
             </div>
-            <p class="small">登録済みタグは選択式で再利用できます。</p>
           </div>
           <fieldset class="tag-select">
             <legend>タグを選択（複数可）</legend>
