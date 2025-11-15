@@ -50,9 +50,7 @@ let selectedFilters = new Set();
 const speechState = {
   voices: [],
   listening: false,
-  voiceReadyPromise: null,
 };
-
 const SAMPLE_DATA = [
   {
     id: crypto.randomUUID?.() ?? `card-${Date.now()}`,
@@ -276,10 +274,15 @@ const getVoiceForLang = (lang) => {
 };
 
 const speakText = (text, lang = 'ko-KR') => {
-  if (!window.speechSynthesis || !text) return Promise.resolve();
+  if (!window.speechSynthesis || !text) return;
   subscribeVoiceChanges();
-  return waitForVoices().then(() => {
-    const utterance = new SpeechSynthesisUtterance(text);
+  refreshVoices();
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voice = getVoiceForLang(lang);
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
     utterance.lang = lang;
     utterance.pitch = 1.8;
     utterance.rate = 1.2;
@@ -527,7 +530,7 @@ const primeSpeechOnFirstInteraction = () => {
   if (!window.speechSynthesis) return;
   const warmup = () => {
     subscribeVoiceChanges();
-    waitForVoices();
+    refreshVoices();
   };
   const handler = () => {
     warmup();
