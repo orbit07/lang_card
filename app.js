@@ -51,7 +51,6 @@ const speechState = {
   voices: [],
   listening: false,
 };
-
 const SAMPLE_DATA = [
   {
     id: crypto.randomUUID?.() ?? `card-${Date.now()}`,
@@ -213,6 +212,7 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
+
 const refreshVoices = () => {
   if (!window.speechSynthesis) return [];
   const list = window.speechSynthesis.getVoices();
@@ -239,6 +239,7 @@ const getVoiceForLang = (lang) => {
     null
   );
 };
+
 
 const speakText = (text, lang = 'ko-KR') => {
   if (!window.speechSynthesis || !text) return;
