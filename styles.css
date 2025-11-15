@@ -207,7 +207,7 @@ textarea {
 }
 
 .card.show-back {
-  background: linear-gradient(145deg, #6f85d8, #6278c4);
+  background: linear-gradient(145deg, #4981cc, #2b6ab4);
 }
 
 .card-face {
@@ -356,12 +356,17 @@ button.small {
 }
 
 button.primary {
-  background: var(--accent);
-  color: #fff;
+  background: #fff;
+  color: var(--accent);
 }
 
 button.primary:hover {
   background: var(--accent-dark);
+}
+
+.keep {
+  background: var(--accent);
+  color: #fff;
 }
 
 button.primary.checked {
