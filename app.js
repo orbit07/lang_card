@@ -17,6 +17,7 @@ const elements = {
   backTags: document.getElementById('backTags'),
   cardTags: document.getElementById('cardTags'),
   checkButton: document.getElementById('checkButton'),
+  deleteButton: document.getElementById('deleteButton'),
   frontSpeak: document.getElementById('frontSpeak'),
   backSpeak: document.getElementById('backSpeak'),
   prevCard: document.getElementById('prevCard'),
@@ -194,14 +195,20 @@ const renderCard = () => {
     elements.frontHint.classList.remove('revealed');
     elements.hintText.textContent = '';
     elements.checkButton.disabled = true;
+    elements.deleteButton.disabled = true;
     return;
   }
 
   elements.checkButton.disabled = false;
+  elements.deleteButton.disabled = false;
   elements.frontText.textContent = card.frontText;
   elements.backText.textContent = card.backText;
-  elements.frontNote.textContent = card.frontNote || '';
-  elements.backMemo.textContent = card.backMemo || '';
+  const frontNoteText = (card.frontNote || '').trim();
+  const backMemoText = (card.backMemo || '').trim();
+  elements.frontNote.textContent = frontNoteText;
+  elements.frontNote.classList.toggle('hidden', !frontNoteText);
+  elements.backMemo.textContent = backMemoText;
+  elements.backMemo.classList.toggle('hidden', !backMemoText);
   elements.hintText.textContent = card.frontHint || 'ヒントは設定されていません';
   elements.frontHint.classList.toggle('hidden', !card.frontHint);
   elements.frontHint.classList.toggle('revealed', false);
@@ -414,6 +421,12 @@ const deleteCard = (cardId) => {
   updateActiveCards();
 };
 
+const deleteCurrentCard = () => {
+  const card = currentCard();
+  if (!card) return;
+  deleteCard(card.id);
+};
+
 const upsertCard = (event) => {
   event.preventDefault();
   const formData = new FormData(elements.cardForm);
@@ -497,6 +510,10 @@ const attachListeners = () => {
   elements.checkButton.addEventListener('click', (event) => {
     event.stopPropagation();
     toggleCheck();
+  });
+  elements.deleteButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    deleteCurrentCard();
   });
   elements.prevCard.addEventListener('click', (event) => {
     event.stopPropagation();

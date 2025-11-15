@@ -189,9 +189,8 @@ textarea {
   font-size: 0.95rem;
 }
 
-.memo:empty::after {
-  content: 'メモは未入力です';
-  color: rgba(255, 255, 255, 0.4);
+.memo.hidden {
+  display: none;
 }
 
 .hint {
@@ -307,6 +306,22 @@ button.ghost.small {
 button.danger {
   background: var(--danger);
   color: #fff;
+}
+
+button.danger.ghost {
+  background: transparent;
+  border: 1px solid rgba(196, 28, 28, 0.6);
+  color: var(--danger);
+}
+
+button.danger.ghost:hover {
+  background: rgba(196, 28, 28, 0.08);
+}
+
+.card-cta-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .tag-filter,
