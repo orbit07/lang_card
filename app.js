@@ -245,7 +245,6 @@ const setActivePanel = (panel) => {
   elements.studyTab.setAttribute('aria-selected', showStudy ? 'true' : 'false');
   elements.manageTab.setAttribute('aria-selected', !showStudy ? 'true' : 'false');
 };
-
 const refreshVoices = () => {
   if (!window.speechSynthesis) return [];
   const list = window.speechSynthesis.getVoices();
