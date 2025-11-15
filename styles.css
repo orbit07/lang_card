@@ -83,16 +83,35 @@ section {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem 2rem;
-  margin-bottom: 1.5rem;
+  margin-top: 2rem;
 }
 
 .control-group {
   min-width: 180px;
 }
 
+.inline-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.inline-control label {
+  margin: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.inline-control select {
+  flex: 1;
+  min-width: 180px;
+}
+
 .control-label {
   font-weight: 600;
   margin-bottom: 0.4rem;
+  display: block;
 }
 
 select,
@@ -333,14 +352,12 @@ button.danger.ghost:hover {
   margin-top: 1rem;
 }
 
-.tag-filter,
 .tag-options {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.tag-filter label,
 .tag-options label {
   border: 1px solid var(--border);
   padding: 0.35rem 0.8rem;
@@ -352,9 +369,95 @@ button.danger.ghost:hover {
   font-size: 0.9rem;
 }
 
-.tag-filter input,
 .tag-options input {
   accent-color: var(--accent);
+}
+
+.tag-filter-group {
+  flex: 1;
+  min-width: 220px;
+}
+
+.tag-filter-control {
+  position: relative;
+}
+
+.select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: #fff;
+  color: var(--text);
+  padding: 0.55rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.select-trigger:focus-visible {
+  outline: 3px solid rgba(0, 120, 212, 0.35);
+  outline-offset: 2px;
+}
+
+.select-trigger[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chevron {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--text);
+  transition: transform 0.2s ease;
+}
+
+.select-trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.tag-filter-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.tag-filter-menu label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0.2rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  gap: 0.5rem;
+}
+
+.tag-filter-menu label:hover {
+  background: rgba(0, 120, 212, 0.08);
+}
+
+.tag-filter-menu input {
+  accent-color: var(--accent);
+}
+
+.tag-filter-menu .small {
+  margin: 0;
 }
 
 .panel-header {
@@ -441,7 +544,7 @@ button.danger.ghost:hover {
 }
 
 .tag-library {
-  flex: 1;
+  margin: 1.5rem 0 0;
 }
 
 .small {

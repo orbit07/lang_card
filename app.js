@@ -5,6 +5,8 @@ const elements = {
   modeSelect: document.getElementById('modeSelect'),
   excludeChecked: document.getElementById('excludeChecked'),
   tagFilterContainer: document.getElementById('tagFilterContainer'),
+  tagFilterToggle: document.getElementById('tagFilterToggle'),
+  tagFilterSummary: document.getElementById('tagFilterSummary'),
   card: document.getElementById('card'),
   frontText: document.getElementById('frontText'),
   backText: document.getElementById('backText'),
@@ -48,6 +50,7 @@ let activeCardIds = [];
 let currentIndex = 0;
 let showingBack = false;
 let selectedFilters = new Set();
+let tagFilterMenuOpen = false;
 
 const speechState = {
   voices: [],
@@ -347,19 +350,68 @@ const resetForm = () => {
   });
 };
 
+const updateTagFilterSummary = () => {
+  if (!tagLibrary.length) {
+    elements.tagFilterSummary.textContent = 'タグ未登録';
+    return;
+  }
+
+  if (!selectedFilters.size) {
+    elements.tagFilterSummary.textContent = 'すべてのタグ';
+    return;
+  }
+
+  const tags = Array.from(selectedFilters);
+  if (tags.length <= 2) {
+    elements.tagFilterSummary.textContent = tags.join(' / ');
+  } else {
+    const [first, second] = tags;
+    elements.tagFilterSummary.textContent = `${first} / ${second} 他${tags.length - 2}件`;
+  }
+};
+
+const closeTagFilterMenu = () => {
+  tagFilterMenuOpen = false;
+  elements.tagFilterContainer.hidden = true;
+  elements.tagFilterToggle.setAttribute('aria-expanded', 'false');
+};
+
+const openTagFilterMenu = () => {
+  if (!tagLibrary.length) return;
+  tagFilterMenuOpen = true;
+  elements.tagFilterContainer.hidden = false;
+  elements.tagFilterToggle.setAttribute('aria-expanded', 'true');
+};
+
+const toggleTagFilterMenu = () => {
+  if (!tagLibrary.length) return;
+  if (tagFilterMenuOpen) {
+    closeTagFilterMenu();
+  } else {
+    openTagFilterMenu();
+  }
+};
+
 const renderTagFilters = () => {
   if (!tagLibrary.length) {
     elements.tagFilterContainer.innerHTML = '<p class="small">タグはまだ登録されていません</p>';
     elements.cardTagOptions.innerHTML = '<p class="small">タグを追加して選択できます</p>';
+    elements.tagFilterToggle.disabled = true;
+    selectedFilters.clear();
+    updateTagFilterSummary();
+    closeTagFilterMenu();
     return;
   }
+
+  elements.tagFilterToggle.disabled = false;
+  selectedFilters = new Set(Array.from(selectedFilters).filter((tag) => tagLibrary.includes(tag)));
 
   elements.tagFilterContainer.innerHTML = tagLibrary
     .map(
       (tag) => `
         <label>
-          <input type="checkbox" value="${tag}" ${selectedFilters.has(tag) ? 'checked' : ''} />
           <span>${tag}</span>
+          <input type="checkbox" value="${tag}" ${selectedFilters.has(tag) ? 'checked' : ''} />
         </label>
       `
     )
@@ -375,6 +427,8 @@ const renderTagFilters = () => {
       `
     )
     .join('');
+
+  updateTagFilterSummary();
 };
 
 const renderCardList = () => {
@@ -502,9 +556,32 @@ const attachListeners = () => {
       } else {
         selectedFilters.delete(tag);
       }
+      updateTagFilterSummary();
       updateActiveCards();
     }
   });
+  elements.tagFilterContainer.addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+  elements.tagFilterToggle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleTagFilterMenu();
+  });
+  document.addEventListener('click', (event) => {
+    if (
+      tagFilterMenuOpen &&
+      !elements.tagFilterContainer.contains(event.target) &&
+      !elements.tagFilterToggle.contains(event.target)
+    ) {
+      closeTagFilterMenu();
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && tagFilterMenuOpen) {
+      closeTagFilterMenu();
+    }
+  });
+
   elements.frontSpeak.addEventListener('click', (event) => {
     event.stopPropagation();
     speakText(currentCard()?.frontText, 'ko-KR');
