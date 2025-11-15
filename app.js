@@ -47,6 +47,12 @@ let currentIndex = 0;
 let showingBack = false;
 let selectedFilters = new Set();
 
+const speechState = {
+  voices: [],
+  listening: false,
+  voiceReadyPromise: null,
+};
+
 const SAMPLE_DATA = [
   {
     id: crypto.randomUUID?.() ?? `card-${Date.now()}`,
@@ -208,7 +214,7 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
-const fetchAvailableVoices = () => {
+const refreshVoices = () => {
   if (!window.speechSynthesis) return [];
   const list = window.speechSynthesis.getVoices();
   if (list.length) {
@@ -217,37 +223,45 @@ const fetchAvailableVoices = () => {
   return list;
 };
 
-const ensureVoicesLoaded = () => {
+const subscribeVoiceChanges = () => {
+  if (!window.speechSynthesis || speechState.listening) return;
+  speechState.listening = true;
+  refreshVoices();
+  window.speechSynthesis.addEventListener('voiceschanged', refreshVoices);
+};
+
+const waitForVoices = () => {
   if (!window.speechSynthesis) return Promise.resolve([]);
-  const existing = fetchAvailableVoices();
-  if (existing.length) {
-    return Promise.resolve(existing);
-  }
-  if (!speechState.loadingPromise) {
-    speechState.loadingPromise = new Promise((resolve) => {
-      let resolved = false;
-      const handle = () => {
-        const voices = fetchAvailableVoices();
-        if (!voices.length) return;
-        window.speechSynthesis.removeEventListener('voiceschanged', handle);
-        speechState.loadingPromise = null;
-        resolved = true;
-        resolve(voices);
-      };
-      window.speechSynthesis.addEventListener('voiceschanged', handle);
-      // iOS Safari sometimes requires a delayed retry after the first user gesture
-      setTimeout(() => {
-        if (resolved) return;
-        const retryVoices = fetchAvailableVoices();
-        if (retryVoices.length) {
-          window.speechSynthesis.removeEventListener('voiceschanged', handle);
+  if (speechState.voices.length) return Promise.resolve(speechState.voices);
+  if (!speechState.voiceReadyPromise) {
+    speechState.voiceReadyPromise = new Promise((resolve) => {
+      const attempt = () => {
+        const list = refreshVoices();
+        if (list.length) {
+          speechState.voiceReadyPromise = null;
+          resolve(list);
+          return true;
         }
-        speechState.loadingPromise = null;
-        resolve(retryVoices);
-      }, 1200);
+        return false;
+      };
+
+      if (attempt()) return;
+
+      const timer = setInterval(() => {
+        if (attempt()) {
+          clearInterval(timer);
+        }
+      }, 150);
+
+      setTimeout(() => {
+        clearInterval(timer);
+        speechState.voiceReadyPromise = null;
+        resolve(speechState.voices);
+      }, 1500);
     });
   }
-  return speechState.loadingPromise;
+
+  return speechState.voiceReadyPromise;
 };
 
 const getVoiceForLang = (lang) => {
@@ -261,22 +275,19 @@ const getVoiceForLang = (lang) => {
   );
 };
 
-const speakText = async (text, lang = 'ko-KR') => {
-  if (!window.speechSynthesis || !text) return;
-  try {
-    await ensureVoicesLoaded();
-  } catch (error) {
-    // noop: fallback to lang-only playback
-  }
-  const utterance = new SpeechSynthesisUtterance(text);
-  const voice = getVoiceForLang(lang);
-  if (voice) {
-    utterance.voice = voice;
-  } else {
+const speakText = (text, lang = 'ko-KR') => {
+  if (!window.speechSynthesis || !text) return Promise.resolve();
+  subscribeVoiceChanges();
+  return waitForVoices().then(() => {
+    const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
-  }
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+    const voice = getVoiceForLang(lang);
+    if (voice) {
+      utterance.voice = voice;
+    }
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  });
 };
 
 const toggleSide = () => {
@@ -513,8 +524,8 @@ const handleTouchEnd = (event) => {
 const primeSpeechOnFirstInteraction = () => {
   if (!window.speechSynthesis) return;
   const warmup = () => {
-    fetchAvailableVoices();
-    ensureVoicesLoaded();
+    subscribeVoiceChanges();
+    waitForVoices();
   };
   const handler = () => {
     warmup();
@@ -531,6 +542,7 @@ const init = () => {
   loadData();
   renderTagFilters();
   attachListeners();
+  primeSpeechOnFirstInteraction();
   updateActiveCards();
 };
 
