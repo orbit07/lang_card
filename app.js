@@ -292,7 +292,7 @@ const speakText = (text, lang = 'ko-KR') => {
     }
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
-  });
+  };
 };
 
 const toggleSide = () => {
