@@ -589,7 +589,6 @@ const exportDataToFile = () => {
 };
 
 const firstArray = (...candidates) => candidates.find((candidate) => Array.isArray(candidate));
-
 const parseImportedData = (raw) => {
   if (!raw || typeof raw !== 'object') {
     throw new Error('JSON オブジェクトではありません');

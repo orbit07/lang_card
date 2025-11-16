@@ -379,6 +379,19 @@ button.secondary {
   background: transparent;
 }
 
+.data-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+
+button.import {
+  background: #e2e6f0;
+  color: #1b1f3b;
+  width: auto;
+}
+
 button.secondary:hover {
   background: rgba(64, 87, 109, 0.2);
 }
