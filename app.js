@@ -483,7 +483,9 @@ const startEdit = (cardId) => {
   elements.cardId.value = card.id;
   elements.frontInput.value = card.frontText;
   elements.backInput.value = card.backText;
-  elements.frontNoteInput.value = card.frontNote || '';
+  if (elements.frontNoteInput) {
+    elements.frontNoteInput.value = card.frontNote || '';
+  }
   elements.frontHintInput.value = card.frontHint || '';
   elements.backMemoInput.value = card.backMemo || '';
   Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
@@ -508,17 +510,22 @@ const deleteCurrentCard = () => {
   deleteCard(card.id);
 };
 
+const getTrimmedField = (formData, fieldName) => {
+  const value = formData.get(fieldName);
+  return typeof value === 'string' ? value.trim() : '';
+};
+
 const upsertCard = (event) => {
   event.preventDefault();
   const formData = new FormData(elements.cardForm);
   const id = formData.get('cardId');
   const payload = {
     id: id || crypto.randomUUID?.() || `card-${Date.now()}`,
-    frontText: formData.get('frontText').trim(),
-    backText: formData.get('backText').trim(),
-    frontNote: formData.get('frontNote').trim(),
-    frontHint: formData.get('frontHint').trim(),
-    backMemo: formData.get('backMemo').trim(),
+    frontText: getTrimmedField(formData, 'frontText'),
+    backText: getTrimmedField(formData, 'backText'),
+    frontNote: getTrimmedField(formData, 'frontNote'),
+    frontHint: getTrimmedField(formData, 'frontHint'),
+    backMemo: getTrimmedField(formData, 'backMemo'),
     tags: Array.from(elements.cardTagOptions.querySelectorAll('input:checked')).map((el) => el.value),
     checked: id ? cards.find((card) => card.id === id)?.checked ?? false : false,
     createdAt: id ? cards.find((card) => card.id === id)?.createdAt ?? Date.now() : Date.now(),
