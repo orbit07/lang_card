@@ -66,8 +66,8 @@
           <div class="card-inner">
             <div class="card-face" id="frontFace">
               <div class="card-header">
-                <span id="cardCounter">0 / 0</span>
                 <button class="ghost small" id="frontSpeak" type="button">🔊 読み上げ</button>
+                <span id="cardCounter">0 / 0</span>
               </div>
               <p class="card-text" id="frontText">カードがありません</p>
               <div class="memo" id="frontNote"></div>
@@ -97,7 +97,7 @@
         </div>
         <div class="card-actions">
           <button id="prevCard" class="ghost" type="button">← 前へ</button>
-          <button id="toggleSide" class="primary" type="button">表 / 裏</button>
+          <button id="toggleSide" class="primary flip" type="button">表 / 裏</button>
           <button id="nextCard" class="ghost" type="button">次へ →</button>
         </div>
       </div>
@@ -128,7 +128,6 @@
         ×
       </button>
       <div class="panel-header">
-        <h2 id="manageHeading">カードの登録・編集</h2>
       </div>
       <form id="cardForm">
         <input type="hidden" name="cardId" id="cardId" />
@@ -146,8 +145,8 @@
             <textarea name="frontNote" id="frontNoteInput" placeholder="表面に表示されるメモ"></textarea>
           </div>-->
           <div>
-            <label>ヒントメモ（黒塗り）</label>
-            <textarea name="frontHint" id="frontHintInput" placeholder="タップして表示されるヒント"></textarea>
+            <label>ヒントメモ</label>
+            <textarea name="frontHint" id="frontHintInput"></textarea>
           </div>
           <div>
             <label>裏メモ</label>

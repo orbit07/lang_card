@@ -15,6 +15,11 @@
   box-sizing: border-box;
 }
 
+label,
+legend {
+    font-size: .8rem;
+}
+
 select {
   border-radius: 0;
   border: 0;
@@ -167,7 +172,6 @@ textarea {
   border-radius: 1.5rem;
   background: linear-gradient(145deg, var(--accent), #2b6ab4);
   color: #fff;
-  min-height: 360px;
   overflow: hidden;
   cursor: pointer;
   perspective: 1600px;
@@ -302,16 +306,17 @@ textarea {
 }
 
 .card-actions {
-  display: none;
+  display: grid;
   gap: 0.5rem;
   justify-content: center;
+  grid-template-columns: auto 1fr auto;
 }
 
 button {
   border: none;
   border-radius: 999px;
   padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  font-size: .8rem;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -399,6 +404,10 @@ button.danger.ghost:hover {
 .danger, .secondary, .primary {
   padding: 0.6rem 1rem;
   width: 100%;
+}
+
+button.flip {
+  border: 1px solid var(--accent);
 }
 
 .tag-options {
@@ -576,6 +585,8 @@ button.danger.ghost:hover {
   cursor: pointer;
   display: grid;
   place-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .fab:focus-visible {
@@ -603,8 +614,8 @@ button.danger.ghost:hover {
 
 .close-manage {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0;
+  right: 0;
   border: none;
   background: transparent;
   font-size: 1.5rem;
@@ -679,10 +690,6 @@ body.modal-open {
 @media (max-width: 640px) {
   section {
     padding: 1.5rem;
-  }
-
-  .card {
-    min-height: 320px;
   }
 
   .controls {
