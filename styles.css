@@ -383,6 +383,7 @@ button.secondary {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: .5rem;
+  margin-top: 1rem;
 }
 
 button.import {
