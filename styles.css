@@ -332,10 +332,6 @@ button.primary {
   color: var(--accent);
 }
 
-button.primary:hover {
-  background: var(--accent-dark);
-}
-
 button.keep {
   background: var(--accent);
   color: #fff;
@@ -364,10 +360,6 @@ button.import {
   width: auto;
 }
 
-button.secondary:hover {
-  background: rgba(64, 87, 109, 0.2);
-}
-
 button.ghost {
   background: transparent;
   border: 1px solid var(--border);
@@ -387,10 +379,6 @@ button.danger {
 button.danger.ghost {
   background: #e2e6f0;
   color: #1b1f3b;
-}
-
-button.danger.ghost:hover {
-  background: rgba(196, 28, 28, 0.08);
 }
 
 .card-cta-row {
@@ -509,10 +497,6 @@ button.flip {
   border-radius: 0.6rem;
   cursor: pointer;
   gap: 0.5rem;
-}
-
-.tag-filter-menu label:hover {
-  background: rgba(0, 120, 212, 0.08);
 }
 
 .tag-filter-menu input {
