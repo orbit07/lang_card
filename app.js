@@ -203,7 +203,9 @@ const renderCard = () => {
     elements.backText.textContent = '';
     elements.frontNote.textContent = '';
     elements.backMemo.textContent = '';
-    elements.cardTags.textContent = '';
+    if (elements.cardTags) {
+      elements.cardTags.textContent = '';
+    }
     elements.backTags.innerHTML = '';
     elements.frontHint.classList.remove('revealed');
     elements.hintText.textContent = '';
@@ -227,7 +229,9 @@ const renderCard = () => {
   elements.hintText.textContent = card.frontHint || 'ヒントは設定されていません';
   elements.frontHint.classList.toggle('hidden', !card.frontHint);
   elements.frontHint.classList.toggle('revealed', false);
-  elements.cardTags.textContent = card.tags.length ? `タグ: ${card.tags.join(', ')}` : '';
+  if (elements.cardTags) {
+    elements.cardTags.textContent = card.tags.length ? `タグ: ${card.tags.join(', ')}` : '';
+  }
   elements.backTags.innerHTML = card.tags
     .map((tag) => `<span>${tag}</span>`)
     .join('');
