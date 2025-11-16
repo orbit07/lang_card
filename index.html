@@ -31,32 +31,7 @@
 
   <main>
 
-    <div class="panel-tabs" role="tablist">
-      <button
-        type="button"
-        id="studyTab"
-        class="panel-tab active"
-        role="tab"
-        aria-selected="true"
-        aria-controls="studyPanel"
-        data-panel-tab="study"
-      >
-        学習モード
-      </button>
-      <button
-        type="button"
-        id="manageTab"
-        class="panel-tab"
-        role="tab"
-        aria-selected="false"
-        aria-controls="managePanel"
-        data-panel-tab="manage"
-      >
-        カード管理
-      </button>
-    </div>
-
-    <section class="study-panel" id="studyPanel" role="tabpanel" aria-labelledby="studyTab">
+    <section class="study-panel" id="studyPanel" aria-label="学習モード">
 
       <div class="controls">
         <div class="control-group inline-control">
@@ -88,30 +63,32 @@
 
       <div class="card-view">
         <div id="card" class="card" aria-live="polite">
-          <div class="card-face" id="frontFace">
-            <div class="card-header">
-              <span id="cardCounter">0 / 0</span>
-              <button class="ghost small" id="frontSpeak" type="button">🔊 読み上げ</button>
+          <div class="card-inner">
+            <div class="card-face" id="frontFace">
+              <div class="card-header">
+                <span id="cardCounter">0 / 0</span>
+                <button class="ghost small" id="frontSpeak" type="button">🔊 読み上げ</button>
+              </div>
+              <p class="card-text" id="frontText">カードがありません</p>
+              <div class="memo" id="frontNote"></div>
+              <div class="hint" id="frontHint">
+                <span class="hint-text"></span>
+                <span class="hint-mask">ヒントをタップ</span>
+              </div>
             </div>
-            <p class="card-text" id="frontText">カードがありません</p>
-            <div class="memo" id="frontNote"></div>
-            <div class="hint" id="frontHint">
-              <span class="hint-text"></span>
-              <span class="hint-mask">ヒントをタップ</span>
-            </div>
-          </div>
-          <div class="card-face back" id="backFace">
-            <div class="card-header">
-              <span id="cardCounter">0 / 0</span>
-              <button class="ghost small" id="backSpeak" type="button">🔊 読み上げ</button>
-            </div>
-            <p class="card-text" id="backText"></p>
-            <div class="memo" id="backMemo"></div>
-            <div class="tags" id="backTags"></div>
-            <div class="card-cta-row">
-              <button id="deleteButton" class="danger ghost" type="button">削除</button>
-              <button id="editButton" class="secondary" type="button">編集</button>
-              <button id="checkButton" class="primary" type="button">覚えた</button>
+            <div class="card-face back" id="backFace">
+              <div class="card-header">
+                <span id="cardCounter">0 / 0</span>
+                <button class="ghost small" id="backSpeak" type="button">🔊 読み上げ</button>
+              </div>
+              <p class="card-text" id="backText"></p>
+              <div class="memo" id="backMemo"></div>
+              <div class="tags" id="backTags"></div>
+              <div class="card-cta-row">
+                <button id="deleteButton" class="danger ghost" type="button">削除</button>
+                <button id="editButton" class="secondary" type="button">編集</button>
+                <button id="checkButton" class="primary" type="button">覚えた</button>
+              </div>
             </div>
           </div>
           <div class="card-empty" id="emptyMessage">
@@ -126,16 +103,32 @@
       </div>
 
     </section>
+  </main>
 
+  <button
+    id="openManagePanel"
+    class="fab"
+    type="button"
+    aria-label="カードを新規追加"
+    aria-controls="managePanel"
+  >
+    ＋
+  </button>
+
+  <div id="manageOverlay" class="manage-overlay" hidden>
     <section
       class="manage-panel"
       id="managePanel"
-      role="tabpanel"
-      aria-labelledby="manageTab"
-      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="manageHeading"
+      tabindex="-1"
     >
+      <button type="button" class="close-manage" id="closeManagePanel" aria-label="閉じる">
+        ×
+      </button>
       <div class="panel-header">
-        <h2>カードの登録・編集</h2>
+        <h2 id="manageHeading">カードの登録・編集</h2>
       </div>
       <form id="cardForm">
         <input type="hidden" name="cardId" id="cardId" />
@@ -192,7 +185,7 @@
         <div id="cardList"></div>
       </div>
     </section>
-  </main>
+  </div>
 
   <template id="cardRowTemplate">
     <div class="card-row">
