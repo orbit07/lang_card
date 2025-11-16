@@ -588,6 +588,7 @@ const exportDataToFile = () => {
   downloadJson(buildExportPayload());
 };
 
+const firstArray = (...candidates) => candidates.find((candidate) => Array.isArray(candidate));
 const parseImportedData = (raw) => {
   if (!raw || typeof raw !== 'object') {
     throw new Error('JSON オブジェクトではありません');
@@ -597,13 +598,23 @@ const parseImportedData = (raw) => {
     return { cards: raw, tags: [] };
   }
 
-  const parsedCards = Array.isArray(raw.cards) ? raw.cards : [];
-  if (!Array.isArray(raw.cards)) {
-    throw new Error('cards プロパティが正しくありません');
-  }
-  const parsedTags = Array.isArray(raw.tags) ? raw.tags : [];
+  const cards =
+    firstArray(
+      raw.cards,
+      raw.data?.cards,
+      raw.payload?.cards,
+      raw.koreanFlashcards,
+      raw.flashcards
+    ) ?? [];
 
-  return { cards: parsedCards, tags: parsedTags };
+  if (!cards.length) {
+    throw new Error('カードの配列が見つかりませんでした');
+  }
+
+  const tags =
+    firstArray(raw.tags, raw.data?.tags, raw.payload?.tags, raw.tagLibrary, raw.koreanFlashcardTags) ?? [];
+
+  return { cards, tags };
 };
 
 const applyImportedData = (data) => {
