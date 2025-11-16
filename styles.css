@@ -379,6 +379,11 @@ button.secondary {
   background: transparent;
 }
 
+button.import {
+  background: #e2e6f0;
+  color: #1b1f3b;
+}
+
 button.secondary:hover {
   background: rgba(64, 87, 109, 0.2);
 }
