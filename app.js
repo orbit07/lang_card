@@ -47,6 +47,9 @@ const elements = {
   newTagInput: document.getElementById('newTagInput'),
   addTagButton: document.getElementById('addTagButton'),
   cardTagOptions: document.getElementById('cardTagOptions'),
+  exportData: document.getElementById('exportData'),
+  importData: document.getElementById('importData'),
+  importInput: document.getElementById('importInput'),
 };
 
 let cards = [];
@@ -563,6 +566,113 @@ const addTag = () => {
   renderTagFilters();
 };
 
+const buildExportPayload = () => ({
+  version: 1,
+  exportedAt: new Date().toISOString(),
+  cards,
+  tags: tagLibrary,
+});
+
+const downloadJson = (data) => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `flipper-data-${timestamp}.json`;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+const exportDataToFile = () => {
+  downloadJson(buildExportPayload());
+};
+
+const firstArray = (...candidates) => candidates.find((candidate) => Array.isArray(candidate));
+
+const parseImportedData = (raw) => {
+  if (!raw || typeof raw !== 'object') {
+    throw new Error('JSON オブジェクトではありません');
+  }
+
+  if (Array.isArray(raw)) {
+    return { cards: raw, tags: [] };
+  }
+
+  const cards =
+    firstArray(
+      raw.cards,
+      raw.data?.cards,
+      raw.payload?.cards,
+      raw.koreanFlashcards,
+      raw.flashcards
+    ) ?? [];
+
+  if (!cards.length) {
+    throw new Error('カードの配列が見つかりませんでした');
+  }
+
+  const tags =
+    firstArray(raw.tags, raw.data?.tags, raw.payload?.tags, raw.tagLibrary, raw.koreanFlashcardTags) ?? [];
+
+  return { cards, tags };
+};
+
+const applyImportedData = (data) => {
+  const normalizedCards = data.cards.map((card, index) => normalizeCard(card, index));
+  const normalizedTags = data.tags.filter((tag) => typeof tag === 'string' && tag.trim() !== '');
+  cards = normalizedCards;
+  tagLibrary = normalizedTags.length
+    ? Array.from(new Set(normalizedTags))
+    : Array.from(new Set(cards.flatMap((card) => card.tags)));
+  persistCards();
+  persistTags();
+  resetForm();
+  renderTagFilters();
+  updateActiveCards();
+};
+
+const handleImportFile = (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (loadEvent) => {
+    try {
+      const json = JSON.parse(loadEvent.target.result);
+      const payload = parseImportedData(json);
+      if (
+        !confirm(
+          `現在のデータ (${cards.length}件) を上書きして ${payload.cards.length}件のカードを読み込みます。よろしいですか？`
+        )
+      ) {
+        return;
+      }
+      applyImportedData(payload);
+      alert('インポートが完了しました');
+    } catch (error) {
+      console.error('Failed to import data', error);
+      alert('インポートに失敗しました。JSON ファイルの形式を確認してください。');
+    } finally {
+      elements.importInput.value = '';
+    }
+  };
+  reader.readAsText(file);
+};
+
+const registerServiceWorker = () => {
+  if (!('serviceWorker' in navigator)) return;
+  const register = () => {
+    navigator.serviceWorker.register('./sw.js').catch((error) => {
+      console.warn('Service Worker の登録に失敗しました', error);
+    });
+  };
+  if (document.readyState === 'complete') {
+    register();
+  } else {
+    window.addEventListener('load', register, { once: true });
+  }
+};
+
 const attachListeners = () => {
   elements.modeSelect.addEventListener('change', updateActiveCards);
   elements.excludeChecked.addEventListener('change', updateActiveCards);
@@ -661,6 +771,9 @@ const attachListeners = () => {
   elements.cardForm.addEventListener('submit', upsertCard);
   elements.cancelEdit.addEventListener('click', resetForm);
   elements.addTagButton.addEventListener('click', addTag);
+  elements.exportData?.addEventListener('click', exportDataToFile);
+  elements.importData?.addEventListener('click', () => elements.importInput?.click());
+  elements.importInput?.addEventListener('change', handleImportFile);
 };
 
 let touchStartX = 0;
@@ -705,3 +818,4 @@ const init = () => {
 };
 
 init();
+registerServiceWorker();

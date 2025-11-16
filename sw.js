@@ -1,4 +1,4 @@
-const CACHE_NAME = 'korean-flashcards-v1';
+const CACHE_NAME = 'korean-flashcards-v2';
 const APP_SHELL = [
   './',
   './index.html',
