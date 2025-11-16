@@ -9,9 +9,9 @@ const elements = {
   tagFilterSummary: document.getElementById('tagFilterSummary'),
   studyPanel: document.getElementById('studyPanel'),
   managePanel: document.getElementById('managePanel'),
-  studyTab: document.getElementById('studyTab'),
-  manageTab: document.getElementById('manageTab'),
-  panelTabs: document.querySelectorAll('[data-panel-tab]'),
+  manageOverlay: document.getElementById('manageOverlay'),
+  openManagePanelButton: document.getElementById('openManagePanel'),
+  closeManagePanelButton: document.getElementById('closeManagePanel'),
   card: document.getElementById('card'),
   frontText: document.getElementById('frontText'),
   backText: document.getElementById('backText'),
@@ -59,7 +59,7 @@ let currentIndex = 0;
 let showingBack = false;
 let selectedFilters = new Set();
 let tagFilterMenuOpen = false;
-let activePanel = 'study';
+let managePanelOpen = false;
 
 const speechState = {
   voices: [],
@@ -237,16 +237,36 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
-const setActivePanel = (panel) => {
-  const target = panel === 'manage' ? 'manage' : 'study';
-  activePanel = target;
-  const showStudy = target === 'study';
-  elements.studyPanel.hidden = !showStudy;
-  elements.managePanel.hidden = showStudy;
-  elements.studyTab.classList.toggle('active', showStudy);
-  elements.manageTab.classList.toggle('active', !showStudy);
-  elements.studyTab.setAttribute('aria-selected', showStudy ? 'true' : 'false');
-  elements.manageTab.setAttribute('aria-selected', !showStudy ? 'true' : 'false');
+const resetForm = () => {
+  elements.cardId.value = '';
+  elements.cardForm.reset();
+  Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
+    input.checked = false;
+  });
+};
+
+const openManagePanel = () => {
+  if (managePanelOpen) return;
+  managePanelOpen = true;
+  elements.manageOverlay.hidden = false;
+  document.body.classList.add('modal-open');
+  requestAnimationFrame(() => {
+    elements.managePanel?.focus();
+  });
+};
+
+const closeManagePanel = () => {
+  if (!managePanelOpen) return;
+  managePanelOpen = false;
+  elements.manageOverlay.hidden = true;
+  document.body.classList.remove('modal-open');
+  resetForm();
+};
+
+const focusManageForm = () => {
+  requestAnimationFrame(() => {
+    elements.frontInput?.focus();
+  });
 };
 const refreshVoices = () => {
   if (!window.speechSynthesis) return [];
@@ -362,14 +382,6 @@ const goTo = (direction) => {
   renderCard();
 };
 
-const resetForm = () => {
-  elements.cardId.value = '';
-  elements.cardForm.reset();
-  Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
-    input.checked = false;
-  });
-};
-
 const updateTagFilterSummary = () => {
   if (!tagLibrary.length) {
     elements.tagFilterSummary.textContent = 'タグ未登録';
@@ -479,7 +491,7 @@ const renderCardList = () => {
 const startEdit = (cardId) => {
   const card = cards.find((c) => c.id === cardId);
   if (!card) return;
-  setActivePanel('manage');
+  resetForm();
   elements.cardId.value = card.id;
   elements.frontInput.value = card.frontText;
   elements.backInput.value = card.backText;
@@ -491,10 +503,8 @@ const startEdit = (cardId) => {
   Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
     input.checked = card.tags.includes(input.value);
   });
-  elements.frontInput.focus();
-  if (typeof elements.cardForm.scrollIntoView === 'function') {
-    elements.cardForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  openManagePanel();
+  focusManageForm();
 };
 
 const deleteCard = (cardId) => {
@@ -543,8 +553,8 @@ const upsertCard = (event) => {
   }
 
   persistCards();
-  resetForm();
   updateActiveCards();
+  closeManagePanel();
 };
 
 const toggleCheck = () => {
@@ -701,13 +711,16 @@ const attachListeners = () => {
     event.stopPropagation();
     toggleTagFilterMenu();
   });
-  elements.panelTabs.forEach((button) => {
-    button.addEventListener('click', () => {
-      setActivePanel(button.dataset.panelTab);
-      if (button.dataset.panelTab === 'manage') {
-        elements.frontInput?.focus();
-      }
-    });
+  elements.openManagePanelButton?.addEventListener('click', () => {
+    resetForm();
+    openManagePanel();
+    focusManageForm();
+  });
+  elements.closeManagePanelButton?.addEventListener('click', closeManagePanel);
+  elements.manageOverlay?.addEventListener('click', (event) => {
+    if (event.target === elements.manageOverlay) {
+      closeManagePanel();
+    }
   });
   document.addEventListener('click', (event) => {
     if (
@@ -719,8 +732,11 @@ const attachListeners = () => {
     }
   });
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && tagFilterMenuOpen) {
+    if (event.key !== 'Escape') return;
+    if (tagFilterMenuOpen) {
       closeTagFilterMenu();
+    } else if (managePanelOpen) {
+      closeManagePanel();
     }
   });
   elements.frontSpeak.addEventListener('click', (event) => {
@@ -817,7 +833,6 @@ const primeSpeechOnFirstInteraction = () => {
 const init = () => {
   loadData();
   renderTagFilters();
-  setActivePanel('study');
   attachListeners();
   primeSpeechOnFirstInteraction();
   updateActiveCards();
