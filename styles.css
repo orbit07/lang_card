@@ -199,7 +199,7 @@ textarea {
   position: relative;
   border-radius: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(145deg, #2a3f6f, #22345c);
+  background: linear-gradient(145deg, var(--accent), #2b6ab4);
   color: #fff;
   min-height: 360px;
   overflow: hidden;
@@ -207,7 +207,7 @@ textarea {
 }
 
 .card.show-back {
-  background: linear-gradient(145deg, #4981cc, #2b6ab4);
+  background: linear-gradient(145deg, #2a3f6f, #22345c);
 }
 
 .card-face {
@@ -400,9 +400,8 @@ button.danger {
 }
 
 button.danger.ghost {
-  background: transparent;
-  border: 1px solid rgba(196, 28, 28, 0.6);
-  color: var(--danger);
+  background: #e2e6f0;
+  color: #1b1f3b;
 }
 
 button.danger.ghost:hover {
