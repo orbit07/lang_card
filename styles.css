@@ -199,26 +199,30 @@ textarea {
   display: flex;
   flex-direction: column;
   backface-visibility: hidden;
+  transition: transform 0.7s ease;
 }
 
 .card #frontFace {
-  transform: rotateY(180deg);
   backface-visibility: visible;
+  opacity: 1;
 }
 
 .card #backFace {
   transform: rotateY(180deg);
   backface-visibility: hidden;
+  opacity: 0;
 }
 
 .card.show-back #frontFace {
   transform: rotateY(180deg);
   backface-visibility: hidden;
+  opacity: 0;
 }
 
 .card.show-back #backFace {
   transform: rotateY(180deg);
   backface-visibility: visible;
+  opacity: 1;
 }
 
 .card-header {
