@@ -201,8 +201,24 @@ textarea {
   backface-visibility: hidden;
 }
 
-#backFace {
+.card #frontFace {
   transform: rotateY(180deg);
+  backface-visibility: visible;
+}
+
+.card #backFace {
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+.card.show-back #frontFace {
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+.card.show-back #backFace {
+  transform: rotateY(180deg);
+  backface-visibility: visible;
 }
 
 .card-header {
