@@ -235,7 +235,7 @@ const renderCard = () => {
   elements.backTags.innerHTML = card.tags
     .map((tag) => `<span>#${tag}</span>`)
     .join('');
-  elements.checkButton.textContent = card.checked ? '✓ 覚えたカード' : '覚えた！';
+  elements.checkButton.textContent = card.checked ? '✓ 覚えた' : '覚えた！';
   elements.checkButton.classList.toggle('checked', card.checked);
 
   elements.card.classList.toggle('show-back', showingBack);
