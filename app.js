@@ -229,7 +229,7 @@ const renderCard = () => {
   elements.frontHint.classList.toggle('revealed', false);
   elements.cardTags.textContent = card.tags.length ? `タグ: ${card.tags.join(', ')}` : '';
   elements.backTags.innerHTML = card.tags
-    .map((tag) => `<span>${tag}</span>`)
+    .map((tag) => `<span>#${tag}</span>`)
     .join('');
   elements.checkButton.textContent = card.checked ? '✓ 覚えたカード' : '覚えた！';
   elements.checkButton.classList.toggle('checked', card.checked);

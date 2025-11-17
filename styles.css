@@ -214,6 +214,7 @@ textarea {
   align-items: center;
   margin-bottom: 1rem;
   font-weight: 600;
+  flex-direction: row-reverse;
 }
 
 .card-text {
@@ -649,10 +650,11 @@ body.modal-open {
 }
 
 .tags span {
+  font-size: .8rem;
+  color: rgba(255, 255, 255, .5);
   display: inline-flex;
   padding: 0.2rem 0.7rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.15);
   margin-right: 0.4rem;
   margin-top: 0.4rem;
 }
