@@ -205,23 +205,27 @@ textarea {
 .card #frontFace {
   backface-visibility: visible;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .card #backFace {
   backface-visibility: hidden;
   opacity: 0;
+  pointer-events: none;
 }
 
 .card.show-back #frontFace {
   transform: rotateY(180deg);
   backface-visibility: hidden;
   opacity: 0;
+  pointer-events: none;
 }
 
 .card.show-back #backFace {
   transform: rotateY(180deg);
   backface-visibility: visible;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .card-header {
