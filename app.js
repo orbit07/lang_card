@@ -37,18 +37,9 @@ const elements = {
   cardId: document.getElementById('cardId'),
   frontInput: document.getElementById('frontInput'),
   backInput: document.getElementById('backInput'),
-  frontInputList: document.getElementById('frontInputList'),
-  backInputList: document.getElementById('backInputList'),
-  addFrontInput: document.getElementById('addFrontInput'),
-  addBackInput: document.getElementById('addBackInput'),
   frontNoteInput: document.getElementById('frontNoteInput'),
   frontHintInput: document.getElementById('frontHintInput'),
   backMemoInput: document.getElementById('backMemoInput'),
-  photoInput: document.getElementById('photoInput'),
-  photoData: document.getElementById('photoData'),
-  photoPreview: document.getElementById('photoPreview'),
-  photoPreviewImage: document.getElementById('photoPreviewImage'),
-  clearPhoto: document.getElementById('clearPhoto'),
   cancelEdit: document.getElementById('cancelEdit'),
   cardList: document.getElementById('cardList'),
   totalCards: document.getElementById('totalCards'),
@@ -56,8 +47,6 @@ const elements = {
   newTagInput: document.getElementById('newTagInput'),
   addTagButton: document.getElementById('addTagButton'),
   cardTagOptions: document.getElementById('cardTagOptions'),
-  backPhotoContainer: document.getElementById('backPhotoContainer'),
-  backPhoto: document.getElementById('backPhoto'),
   exportData: document.getElementById('exportData'),
   importData: document.getElementById('importData'),
   importInput: document.getElementById('importInput'),
@@ -71,11 +60,6 @@ let showingBack = false;
 let selectedFilters = new Set();
 let tagFilterMenuOpen = false;
 let managePanelOpen = false;
-const VARIANT_LIMIT = 3;
-const variantConfig = {
-  front: { list: elements.frontInputList, addButton: elements.addFrontInput, name: 'frontText' },
-  back: { list: elements.backInputList, addButton: elements.addBackInput, name: 'backText' },
-};
 
 const speechState = {
   voices: [],
@@ -120,35 +104,17 @@ const SAMPLE_DATA = [
   },
 ];
 
-const toVariantArray = (value) => {
-  if (Array.isArray(value)) {
-    return value.map((entry) => (typeof entry === 'string' ? entry.trim() : '')).filter(Boolean);
-  }
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    return trimmed ? [trimmed] : [];
-  }
-  return [];
-};
-
-const normalizeCard = (card, index = 0) => {
-  const frontVariants = toVariantArray(card.frontVariants ?? card.frontText);
-  const backVariants = toVariantArray(card.backVariants ?? card.backText);
-  return {
-    id: card.id || `card-${Date.now()}-${index}`,
-    frontText: frontVariants[0] ?? card.frontText ?? '',
-    backText: backVariants[0] ?? card.backText ?? '',
-    frontVariants,
-    backVariants,
-    frontNote: card.frontNote ?? card.frontMemo ?? '',
-    frontHint: card.frontHint ?? '',
-    backMemo: card.backMemo ?? '',
-    photo: typeof card.photo === 'string' ? card.photo : '',
-    tags: Array.isArray(card.tags) ? card.tags : [],
-    checked: Boolean(card.checked),
-    createdAt: card.createdAt ?? Date.now() + index,
-  };
-};
+const normalizeCard = (card, index = 0) => ({
+  id: card.id || `card-${Date.now()}-${index}`,
+  frontText: card.frontText || '',
+  backText: card.backText || '',
+  frontNote: card.frontNote ?? card.frontMemo ?? '',
+  frontHint: card.frontHint ?? '',
+  backMemo: card.backMemo ?? '',
+  tags: Array.isArray(card.tags) ? card.tags : [],
+  checked: Boolean(card.checked),
+  createdAt: card.createdAt ?? Date.now() + index,
+});
 
 const loadData = () => {
   const savedCards = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
@@ -237,10 +203,6 @@ const renderCard = () => {
     elements.backText.textContent = '';
     elements.frontNote.textContent = '';
     elements.backMemo.textContent = '';
-    if (elements.backPhotoContainer) {
-      elements.backPhotoContainer.hidden = true;
-      elements.backPhoto?.removeAttribute('src');
-    }
     if (elements.cardTags) {
       elements.cardTags.textContent = '';
     }
@@ -256,33 +218,14 @@ const renderCard = () => {
   elements.checkButton.disabled = false;
   elements.editButton.disabled = false;
   elements.deleteButton.disabled = false;
-  const frontVariants = card.frontVariants?.length
-    ? card.frontVariants
-    : card.frontText
-      ? [card.frontText]
-      : [];
-  const backVariants = card.backVariants?.length
-    ? card.backVariants
-    : card.backText
-      ? [card.backText]
-      : [];
-  elements.frontText.textContent = frontVariants.join('\n');
-  elements.backText.textContent = backVariants.join('\n');
+  elements.frontText.textContent = card.frontText;
+  elements.backText.textContent = card.backText;
   const frontNoteText = (card.frontNote || '').trim();
   const backMemoText = (card.backMemo || '').trim();
   elements.frontNote.textContent = frontNoteText;
   elements.frontNote.classList.toggle('hidden', !frontNoteText);
   elements.backMemo.textContent = backMemoText;
   elements.backMemo.classList.toggle('hidden', !backMemoText);
-  if (elements.backPhotoContainer) {
-    if (card.photo) {
-      elements.backPhotoContainer.hidden = false;
-      elements.backPhoto.src = card.photo;
-    } else {
-      elements.backPhotoContainer.hidden = true;
-      elements.backPhoto.removeAttribute('src');
-    }
-  }
   elements.hintText.textContent = card.frontHint || 'ヒントは設定されていません';
   elements.frontHint.classList.toggle('hidden', !card.frontHint);
   elements.frontHint.classList.toggle('revealed', false);
@@ -298,134 +241,12 @@ const renderCard = () => {
   elements.card.classList.toggle('show-back', showingBack);
 };
 
-const removeVariantRow = (type, row) => {
-  const config = variantConfig[type];
-  if (!config?.list || config.list.children.length <= 1) return;
-  config.list.removeChild(row);
-  const rows = Array.from(config.list.querySelectorAll('.multi-input-row'));
-  rows.forEach((item, index) => {
-    item.dataset.index = index;
-  });
-  const firstRemove = config.list.querySelector('.remove-variant');
-  if (firstRemove) {
-    firstRemove.setAttribute('aria-disabled', 'true');
-    firstRemove.tabIndex = -1;
-  }
-  if (config?.addButton) {
-    config.addButton.disabled = rows.length >= VARIANT_LIMIT;
-  }
-};
-
-const createVariantRow = (type, value = '', isBase = false) => {
-  const config = variantConfig[type];
-  const row = document.createElement('div');
-  row.className = 'multi-input-row';
-  row.dataset.index = config?.list?.childElementCount ?? 0;
-
-  const textarea = document.createElement('textarea');
-  textarea.name = config.name;
-  if (isBase) {
-    textarea.required = true;
-  }
-  textarea.value = value;
-  row.appendChild(textarea);
-
-  const removeButton = document.createElement('button');
-  removeButton.type = 'button';
-  removeButton.className = 'remove-variant';
-  removeButton.textContent = '×';
-  removeButton.dataset.target = type;
-  if (isBase) {
-    removeButton.setAttribute('aria-disabled', 'true');
-    removeButton.tabIndex = -1;
-  } else {
-    removeButton.addEventListener('click', () => removeVariantRow(type, row));
-  }
-  row.appendChild(removeButton);
-
-  return row;
-};
-
-const syncVariantAddState = (type) => {
-  const config = variantConfig[type];
-  if (!config?.addButton || !config?.list) return;
-  const count = config.list.querySelectorAll(`textarea[name='${config.name}']`).length;
-  config.addButton.disabled = count >= VARIANT_LIMIT;
-};
-
-const syncVariantRows = (type, values = ['']) => {
-  const config = variantConfig[type];
-  if (!config?.list) return;
-  config.list.innerHTML = '';
-  const entries = values.length ? values.slice(0, VARIANT_LIMIT) : [''];
-  entries.forEach((value, index) => {
-    const row = createVariantRow(type, value, index === 0);
-    config.list.appendChild(row);
-  });
-  if (!entries.length) {
-    config.list.appendChild(createVariantRow(type, '', true));
-  }
-  syncVariantAddState(type);
-};
-
-const addVariantRow = (type) => {
-  const config = variantConfig[type];
-  if (!config?.list) return;
-  const count = config.list.querySelectorAll(`textarea[name='${config.name}']`).length;
-  if (count >= VARIANT_LIMIT) return;
-  const row = createVariantRow(type);
-  config.list.appendChild(row);
-  syncVariantAddState(type);
-};
-
-const getVariantValues = (type) => {
-  const config = variantConfig[type];
-  if (!config?.list) return [];
-  return Array.from(config.list.querySelectorAll(`textarea[name='${config.name}']`))
-    .map((textarea) => textarea.value.trim())
-    .filter(Boolean)
-    .slice(0, VARIANT_LIMIT);
-};
-
-const updatePhotoPreview = (dataUrl) => {
-  if (elements.photoData) {
-    elements.photoData.value = dataUrl || '';
-  }
-  if (!elements.photoPreview || !elements.photoPreviewImage) return;
-  const hasData = Boolean(dataUrl);
-  elements.photoPreview.hidden = !hasData;
-  elements.photoPreviewImage.src = dataUrl || '';
-  if (elements.clearPhoto) {
-    elements.clearPhoto.disabled = !hasData;
-  }
-};
-
-const clearPhoto = () => {
-  if (elements.photoInput) {
-    elements.photoInput.value = '';
-  }
-  updatePhotoPreview('');
-};
-
-const handlePhotoChange = (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (loadEvent) => {
-    updatePhotoPreview(loadEvent.target.result);
-  };
-  reader.readAsDataURL(file);
-};
-
 const resetForm = () => {
   elements.cardId.value = '';
   elements.cardForm.reset();
-  syncVariantRows('front', ['']);
-  syncVariantRows('back', ['']);
   Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
     input.checked = false;
   });
-  clearPhoto();
 };
 
 const openManagePanel = () => {
@@ -448,8 +269,7 @@ const closeManagePanel = () => {
 
 const focusManageForm = () => {
   requestAnimationFrame(() => {
-    const firstFrontField = elements.frontInputList?.querySelector('textarea');
-    firstFrontField?.focus();
+    elements.frontInput?.focus();
   });
 };
 const refreshVoices = () => {
@@ -658,10 +478,8 @@ const renderCardList = () => {
 
   cards.forEach((card) => {
     const clone = elements.cardRowTemplate.content.cloneNode(true);
-    const frontDisplay = card.frontVariants?.[0] ?? card.frontText;
-    const backDisplay = card.backVariants?.[0] ?? card.backText;
-    clone.querySelector('.row-front').textContent = `表: ${frontDisplay}`;
-    clone.querySelector('.row-back').textContent = `裏: ${backDisplay}`;
+    clone.querySelector('.row-front').textContent = `表: ${card.frontText}`;
+    clone.querySelector('.row-back').textContent = `裏: ${card.backText}`;
     const tags = clone.querySelector('.row-tags');
     tags.innerHTML = card.tags.map((tag) => `<span class="tag-pill">${tag}</span>`).join('');
     const row = clone.querySelector('.card-row');
@@ -674,26 +492,23 @@ const renderCardList = () => {
   });
 };
 
-  const startEdit = (cardId) => {
-    const card = cards.find((c) => c.id === cardId);
-    if (!card) return;
-    resetForm();
-    elements.cardId.value = card.id;
-    const frontValues = card.frontVariants?.length ? card.frontVariants : [card.frontText];
-    const backValues = card.backVariants?.length ? card.backVariants : [card.backText];
-    syncVariantRows('front', frontValues);
-    syncVariantRows('back', backValues);
-    if (elements.frontNoteInput) {
-      elements.frontNoteInput.value = card.frontNote || '';
-    }
-    elements.frontHintInput.value = card.frontHint || '';
-    elements.backMemoInput.value = card.backMemo || '';
-    updatePhotoPreview(card.photo || '');
-    Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
-      input.checked = card.tags.includes(input.value);
-    });
-    openManagePanel();
-    focusManageForm();
+const startEdit = (cardId) => {
+  const card = cards.find((c) => c.id === cardId);
+  if (!card) return;
+  resetForm();
+  elements.cardId.value = card.id;
+  elements.frontInput.value = card.frontText;
+  elements.backInput.value = card.backText;
+  if (elements.frontNoteInput) {
+    elements.frontNoteInput.value = card.frontNote || '';
+  }
+  elements.frontHintInput.value = card.frontHint || '';
+  elements.backMemoInput.value = card.backMemo || '';
+  Array.from(elements.cardTagOptions.querySelectorAll('input')).forEach((input) => {
+    input.checked = card.tags.includes(input.value);
+  });
+  openManagePanel();
+  focusManageForm();
 };
 
 const deleteCard = (cardId) => {
@@ -718,32 +533,22 @@ const upsertCard = (event) => {
   event.preventDefault();
   const formData = new FormData(elements.cardForm);
   const id = formData.get('cardId');
-  const baseFrontValue = elements.frontInputList?.querySelector('textarea')?.value.trim() ?? '';
-  const baseBackValue = elements.backInputList?.querySelector('textarea')?.value.trim() ?? '';
-  if (!baseFrontValue || !baseBackValue) {
-    alert('表面と裏面の最初の入力は必須です');
-    return;
-  }
-  const frontVariants = getVariantValues('front');
-  const backVariants = getVariantValues('back');
-  if (!frontVariants.length || !backVariants.length) {
-    alert('表面と裏面のフレーズは必須です');
-    return;
-  }
   const payload = {
     id: id || crypto.randomUUID?.() || `card-${Date.now()}`,
-    frontText: frontVariants[0] ?? '',
-    backText: backVariants[0] ?? '',
-    frontVariants,
-    backVariants,
+    frontText: getTrimmedField(formData, 'frontText'),
+    backText: getTrimmedField(formData, 'backText'),
     frontNote: getTrimmedField(formData, 'frontNote'),
     frontHint: getTrimmedField(formData, 'frontHint'),
     backMemo: getTrimmedField(formData, 'backMemo'),
-    photo: getTrimmedField(formData, 'photoData'),
     tags: Array.from(elements.cardTagOptions.querySelectorAll('input:checked')).map((el) => el.value),
     checked: id ? cards.find((card) => card.id === id)?.checked ?? false : false,
     createdAt: id ? cards.find((card) => card.id === id)?.createdAt ?? Date.now() : Date.now(),
   };
+
+  if (!payload.frontText || !payload.backText) {
+    alert('表面と裏面のフレーズは必須です');
+    return;
+  }
 
   if (id) {
     cards = cards.map((card) => (card.id === id ? payload : card));
@@ -906,17 +711,15 @@ const attachListeners = () => {
   elements.tagFilterContainer.addEventListener('click', (event) => {
     event.stopPropagation();
   });
-    elements.tagFilterToggle.addEventListener('click', (event) => {
-      event.stopPropagation();
-      toggleTagFilterMenu();
-    });
-    elements.addFrontInput?.addEventListener('click', () => addVariantRow('front'));
-    elements.addBackInput?.addEventListener('click', () => addVariantRow('back'));
-    elements.openManagePanelButton?.addEventListener('click', () => {
-      resetForm();
-      openManagePanel();
-      focusManageForm();
-    });
+  elements.tagFilterToggle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleTagFilterMenu();
+  });
+  elements.openManagePanelButton?.addEventListener('click', () => {
+    resetForm();
+    openManagePanel();
+    focusManageForm();
+  });
   elements.closeManagePanelButton?.addEventListener('click', closeManagePanel);
   elements.manageOverlay?.addEventListener('click', (event) => {
     if (event.target === elements.manageOverlay) {
@@ -994,8 +797,6 @@ const attachListeners = () => {
   elements.cardForm.addEventListener('submit', upsertCard);
   elements.cancelEdit.addEventListener('click', resetForm);
   elements.addTagButton.addEventListener('click', addTag);
-  elements.photoInput?.addEventListener('change', handlePhotoChange);
-  elements.clearPhoto?.addEventListener('click', clearPhoto);
   elements.exportData?.addEventListener('click', exportDataToFile);
   elements.importData?.addEventListener('click', () => elements.importInput?.click());
   elements.importInput?.addEventListener('change', handleImportFile);

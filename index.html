@@ -82,9 +82,6 @@
               </div>
               <p class="card-text" id="backText"></p>
               <div class="memo" id="backMemo"></div>
-              <div class="card-photo" id="backPhotoContainer" hidden>
-                <img id="backPhoto" alt="カードの写真" />
-              </div>
               <div class="tags" id="backTags"></div>
               <div class="card-cta-row">
                 <button id="deleteButton" class="danger ghost" type="button">削除</button>
@@ -134,29 +131,13 @@
       <form id="cardForm">
         <input type="hidden" name="cardId" id="cardId" />
         <div class="form-grid">
-          <div class="multi-field" data-type="front">
-            <div class="multi-field-header">
-              <label>表面フレーズ</label>
-              <button type="button" class="ghost small" id="addFrontInput">＋</button>
-            </div>
-            <div class="multi-input-list" id="frontInputList">
-              <div class="multi-input-row" data-index="0">
-                <textarea name="frontText" id="frontInput" required></textarea>
-                <button type="button" class="remove-variant" data-target="front" aria-disabled="true" tabindex="-1">×</button>
-              </div>
-            </div>
+          <div>
+            <label>表面フレーズ</label>
+            <textarea name="frontText" id="frontInput" required></textarea>
           </div>
-          <div class="multi-field" data-type="back">
-            <div class="multi-field-header">
-              <label>裏面フレーズ</label>
-              <button type="button" class="ghost small" id="addBackInput">＋</button>
-            </div>
-            <div class="multi-input-list" id="backInputList">
-              <div class="multi-input-row" data-index="0">
-                <textarea name="backText" id="backInput" required></textarea>
-                <button type="button" class="remove-variant" data-target="back" aria-disabled="true" tabindex="-1">×</button>
-              </div>
-            </div>
+          <div>
+            <label>裏面フレーズ</label>
+            <textarea name="backText" id="backInput" required></textarea>
           </div>
           <!--<div>
             <label>表メモ</label>
@@ -169,18 +150,6 @@
           <div>
             <label>裏メモ</label>
             <textarea name="backMemo" id="backMemoInput"></textarea>
-          </div>
-        </div>
-
-        <div class="media-field">
-          <label for="photoInput">写真（任意）</label>
-          <div class="photo-input-row">
-            <input type="file" id="photoInput" accept="image/*" />
-            <input type="hidden" id="photoData" name="photoData" />
-            <button type="button" class="ghost" id="clearPhoto" disabled>写真を削除</button>
-          </div>
-          <div class="photo-preview" id="photoPreview" hidden>
-            <img id="photoPreviewImage" alt="アップロードした写真のプレビュー" />
           </div>
         </div>
         <div class="tag-library">
